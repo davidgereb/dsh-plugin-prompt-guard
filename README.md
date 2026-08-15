@@ -7,39 +7,8 @@ permission/approval and multiselect prompts visible and reachable.
 
 ### From GitHub
 
-> **Prerequisite (pnpm ≥ 11).** pnpm 11 blocks git-hosted **transitive**
-> dependencies (`blockExoticSubdeps` defaults to `true`). Before installing,
-> add one line to your profile's `pnpm-workspace.yaml`:
->
-> ```yaml
-> blockExoticSubdeps: false
-> ```
-
 ```sh
 dsh plugin --profile web add github:davidgereb/dsh-plugin-prompt-guard
-```
-
-Then add the loader row to the profile patch file
-(`$DSH_HOME/profiles/web/cordis.patch.yml`):
-
-```yaml
-- insert:
-    - id: ui-prompt-guard
-      name: dsh-plugin-prompt-guard
-      config:
-        ntfyTopic: your-ntfy-topic     # see Configuration below
-        ntfyToken: ""
-        cooldownSec: 5
-```
-
-> **Root-cause patch.** The plugin's main fix rewrites the served
-> `dsh-client-runtime` bundle so `Session#resync()` no longer clears pending
-> waits. That patch is applied to the **installed** runtime copies by
-> `scripts/patch-client-runtime.mjs` — run it after installing (and after any
-> dsh upgrade that re-serves the runtime bundle):
-
-```sh
-node scripts/patch-client-runtime.mjs        # idempotent; --revert to undo
 ```
 
 ### From a local checkout
