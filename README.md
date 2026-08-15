@@ -7,9 +7,27 @@ permission/approval and multiselect prompts visible and reachable.
 
 ### From GitHub
 
+One block — installs the plugin, registers the loader row, and applies the
+served-runtime patch the plugin's fix depends on:
+
 ```sh
 dsh plugin --profile web add github:davidgereb/dsh-plugin-prompt-guard
+PATCH="${DSH_HOME:-$HOME/.dsh}/profiles/web/cordis.patch.yml"
+grep -q "name: dsh-plugin-prompt-guard" "$PATCH" 2>/dev/null || cat >> "$PATCH" <<'EOF'
+
+- insert:
+    - id: ui-prompt-guard
+      name: dsh-plugin-prompt-guard
+      config:
+        ntfyTopic: your-ntfy-topic     # see Configuration below
+        ntfyToken: ""
+        cooldownSec: 5
+EOF
+node "${DSH_HOME:-$HOME/.dsh}/profiles/web/node_modules/dsh-plugin-prompt-guard/scripts/patch-client-runtime.mjs"
 ```
+
+The runtime patch (`patch-client-runtime.mjs`) is idempotent — re-running is
+safe; `--revert` undoes it.
 
 ### From a local checkout
 
