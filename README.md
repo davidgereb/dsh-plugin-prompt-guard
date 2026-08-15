@@ -3,10 +3,6 @@
 A **dsh web** plugin (desktop + mobile) that keeps pending
 permission/approval and multiselect prompts visible and reachable.
 
-> **Compatibility.** Tested against **dsh `0.1.0-rc.6`** on Node.js
-> **v24.19.0** (dsh web profile). Older or newer dsh releases may change the
-> internals this plugin hooks into — check the changelog before upgrading.
-
 ## Install
 
 ### From GitHub
@@ -146,6 +142,10 @@ Client-side toggles `NOTIFY_ENABLED` / `NOTIFY_ONLY_WHEN_UNFOCUSED` in
   `cordis.patch.yml`.
 * `dsh plugin --profile web rm dsh-plugin-prompt-guard`
 * Restart the dsh server and refresh the page.
+
+> **Compatibility.** Tested against **dsh `0.1.0-rc.6`** on Node.js
+> **v24.19.0** (dsh web profile). Older or newer dsh releases may change the
+> internals this plugin hooks into — check the changelog before upgrading.
 
 ---
 
