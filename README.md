@@ -7,6 +7,14 @@ permission/approval and multiselect prompts visible and reachable.
 
 ### From GitHub
 
+> **Prerequisite (pnpm ≥ 11).** pnpm 11 blocks git-hosted **transitive**
+> dependencies (`blockExoticSubdeps` defaults to `true`). Before installing,
+> add one line to your profile's `pnpm-workspace.yaml`:
+>
+> ```yaml
+> blockExoticSubdeps: false
+> ```
+
 ```sh
 dsh plugin --profile web add github:davidgereb/dsh-plugin-prompt-guard
 ```
