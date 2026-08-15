@@ -1,12 +1,54 @@
 # dsh-plugin-prompt-guard
 
-> **⚠️ AI-generated, provided as-is.** This project was written with the
-> assistance of an AI. It is provided **AS IS** without warranty of any kind,
-> express or implied. The author cannot be held responsible for any damage,
-> data loss, or misbehaviour that results from using it. Use at your own risk.
-
 A **dsh web** plugin (desktop + mobile) that keeps pending
 permission/approval and multiselect prompts visible and reachable.
+
+> **Compatibility.** Tested against **dsh `0.1.0-rc.6`** on Node.js
+> **v24.19.0** (dsh web profile). Older or newer dsh releases may change the
+> internals this plugin hooks into — check the changelog before upgrading.
+
+## Install
+
+### From GitHub
+
+```sh
+dsh plugin --profile web add github:davidgereb/dsh-plugin-prompt-guard
+```
+
+Then add the loader row to the profile patch file
+(`$DSH_HOME/profiles/web/cordis.patch.yml`):
+
+```yaml
+- insert:
+    - id: ui-prompt-guard
+      name: dsh-plugin-prompt-guard
+      config:
+        ntfyTopic: your-ntfy-topic     # see Configuration below
+        ntfyToken: ""
+        cooldownSec: 5
+```
+
+> **Root-cause patch.** The plugin's main fix rewrites the served
+> `dsh-client-runtime` bundle so `Session#resync()` no longer clears pending
+> waits. That patch is applied to the **installed** runtime copies by
+> `scripts/patch-client-runtime.mjs` — run it after installing (and after any
+> dsh upgrade that re-serves the runtime bundle):
+
+```sh
+node scripts/patch-client-runtime.mjs        # idempotent; --revert to undo
+```
+
+### From a local checkout
+
+```sh
+node scripts/build-client.js
+node scripts/patch-client-runtime.mjs        # idempotent; --revert to undo
+dsh plugin --profile web link /path/to/dsh-plugin-prompt-guard
+# + register the loader row in cordis.patch.yml (see above)
+```
+
+Host-half changes need a dsh server restart; browser-bundle changes (client.js
+and the runtime patch) reach the GUI on a page refresh.
 
 ## The problem
 
@@ -77,49 +119,6 @@ dsh-plugin-prompt-guard/
     └── patch-client-runtime.mjs  # applies/reverts the resync() fix (root cause)
 ```
 
-## Install
-
-### From GitHub
-
-```sh
-dsh plugin --profile web add github:davidgereb/dsh-plugin-prompt-guard
-```
-
-Then add the loader row to the profile patch file
-(`$DSH_HOME/profiles/web/cordis.patch.yml`):
-
-```yaml
-- insert:
-    - id: ui-prompt-guard
-      name: dsh-plugin-prompt-guard
-      config:
-        ntfyTopic: your-ntfy-topic     # see Configuration below
-        ntfyToken: ""
-        cooldownSec: 5
-```
-
-> **Root-cause patch.** The plugin's main fix rewrites the served
-> `dsh-client-runtime` bundle so `Session#resync()` no longer clears pending
-> waits. That patch is applied to the **installed** runtime copies by
-> `scripts/patch-client-runtime.mjs` — run it after installing (and after any
-> dsh upgrade that re-serves the runtime bundle):
-
-```sh
-node scripts/patch-client-runtime.mjs        # idempotent; --revert to undo
-```
-
-### From a local checkout
-
-```sh
-node scripts/build-client.js
-node scripts/patch-client-runtime.mjs        # idempotent; --revert to undo
-dsh plugin --profile web link /path/to/dsh-plugin-prompt-guard
-# + register the loader row in cordis.patch.yml (see above)
-```
-
-Host-half changes need a dsh server restart; browser-bundle changes (client.js
-and the runtime patch) reach the GUI on a page refresh.
-
 ## Configuration
 
 Per-entry `config:` in `cordis.patch.yml`, overridable live from the
@@ -147,3 +146,10 @@ Client-side toggles `NOTIFY_ENABLED` / `NOTIFY_ONLY_WHEN_UNFOCUSED` in
   `cordis.patch.yml`.
 * `dsh plugin --profile web rm dsh-plugin-prompt-guard`
 * Restart the dsh server and refresh the page.
+
+---
+
+> **⚠️ AI-generated, provided as-is.** This project was written with the
+> assistance of an AI. It is provided **AS IS** without warranty of any kind,
+> express or implied. The author cannot be held responsible for any damage,
+> data loss, or misbehaviour that results from using it. Use at your own risk.
