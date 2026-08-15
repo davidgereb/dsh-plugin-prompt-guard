@@ -1,5 +1,10 @@
 # dsh-plugin-prompt-guard
 
+> **⚠️ AI-generated, provided as-is.** This project was written with the
+> assistance of an AI. It is provided **AS IS** without warranty of any kind,
+> express or implied. The author cannot be held responsible for any damage,
+> data loss, or misbehaviour that results from using it. Use at your own risk.
+
 A **dsh web** plugin (desktop + mobile) that keeps pending
 permission/approval and multiselect prompts visible and reachable.
 

@@ -9,13 +9,32 @@
 //   node scripts/patch-workspace-deeplink.mjs --revert   # remove the shim
 //   DSPG_WORKSPACE_CLIENT=/path/to/client.js node scripts/patch-workspace-deeplink.mjs
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const DEFAULT_TARGET = "/root/.nvm/versions/node/v24.19.0/lib/node_modules/@deepseek-ai/dsh/node_modules/@deepseek-ai/dsh-client-ui-workspace/lib/client.js";
-const target = process.env.DSPG_WORKSPACE_CLIENT ?? DEFAULT_TARGET;
+// The served bundle lives inside the dsh installation's own node_modules or
+// the profile's node_modules. Resolve it from $DSH_HOME and standard package
+// locations rather than hardcoding an install path; DSPG_WORKSPACE_CLIENT
+// overrides everything.
+const candidates = [
+	process.env.DSPG_WORKSPACE_CLIENT,
+	process.env.DSH_HOME && join(process.env.DSH_HOME, "profiles", "web", "node_modules", "@deepseek-ai", "dsh-client-ui-workspace", "lib", "client.js"),
+	join(homedir(), ".dsh", "profiles", "web", "node_modules", "@deepseek-ai", "dsh-client-ui-workspace", "lib", "client.js"),
+	join(homedir(), "node_modules", "@deepseek-ai", "dsh-client-ui-workspace", "lib", "client.js")
+].filter(Boolean);
+const target = candidates.find((p) => existsSync(p));
 const revert = process.argv.includes("--revert");
+
+if (!target) {
+	console.error(
+		"could not locate the served ui-workspace client.js.\n" +
+		"Set DSPG_WORKSPACE_CLIENT to the path of the dsh-client-ui-workspace client.js bundle\n" +
+		"(e.g. the one served by the dsh web profile), or run with DSH_HOME set to your dsh home."
+	);
+	process.exit(1);
+}
 
 const REGION_START = "//#region dsh-plugin-prompt-guard:workspace-deeplink";
 const REGION_END = "//#endregion dsh-plugin-prompt-guard:workspace-deeplink";

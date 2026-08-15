@@ -17,18 +17,29 @@
 //   node scripts/patch-client-runtime.mjs --revert   # remove the fix
 //   DSPG_RUNTIME_CLIENT=/path/to/client.js node scripts/patch-client-runtime.mjs
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { homedir } from "node:os";
+import { join } from "node:path";
 
-const DEFAULT_TARGETS = [
-	// The dsh install copy (proven served: the cost-lens ui-workspace shim lives here).
-	"/root/.nvm/versions/node/v24.19.0/lib/node_modules/@deepseek-ai/dsh/node_modules/@deepseek-ai/dsh-client-runtime/lib/client.js",
-	// The profile-adjacent copy (same bytes today; keep both in sync).
-	"/root/node_modules/@deepseek-ai/dsh-client-runtime/lib/client.js"
-];
+// Resolve the served dsh-client-runtime copies from $DSH_HOME and standard
+// package locations rather than hardcoding an install path; DSPG_RUNTIME_CLIENT
+// overrides everything (repeatable with a comma-separated list).
+const defaultTargets = () => {
+	const home = process.env.DSH_HOME ?? join(homedir(), ".dsh");
+	return [
+		join(home, "profiles", "web", "node_modules", "@deepseek-ai", "dsh-client-runtime", "lib", "client.js"),
+		join(home, "node_modules", "@deepseek-ai", "dsh-client-runtime", "lib", "client.js"),
+		join(homedir(), "node_modules", "@deepseek-ai", "dsh-client-runtime", "lib", "client.js")
+	];
+};
+const DEFAULT_TARGETS = defaultTargets();
 
 const OLD = "\t\t\t\tthis.pending.clear();\n\t\t\t\tthis.pendingRev++;";
 const NEW = "\t\t\t\t/* dsh-plugin-prompt-guard: keep pending waits across reconnect (no premature hide) */\n\t\t\t\tthis.pendingRev++;";
+// Older installs used the pre-rename marker; treat it as applied too so a
+// `--revert` (or a re-apply) works against bundles patched by either version.
+const LEGACY_NEW = "\t\t\t\t/* dsh-prompt-guard: keep pending waits across reconnect (no premature hide) */\n\t\t\t\tthis.pendingRev++;";
 
-const targets = process.env.DSPG_RUNTIME_CLIENT !== void 0 ? [process.env.DSPG_RUNTIME_CLIENT] : DEFAULT_TARGETS;
+const targets = process.env.DSPG_RUNTIME_CLIENT !== void 0 ? process.env.DSPG_RUNTIME_CLIENT.split(",").map((s) => s.trim()).filter(Boolean) : DEFAULT_TARGETS;
 const revert = process.argv.includes("--revert");
 
 let changed = 0;
@@ -39,14 +50,14 @@ for (const target of targets) {
 	}
 	const original = readFileSync(target, "utf8");
 	if (revert) {
-		if (!original.includes(NEW)) {
+		if (!original.includes(NEW) && !original.includes(LEGACY_NEW)) {
 			console.log(`fix not present (nothing to revert): ${target}`);
 			continue;
 		}
-		writeFileSync(target, original.replace(NEW, OLD));
+		writeFileSync(target, original.replace(NEW, OLD).replace(LEGACY_NEW, OLD));
 		console.log(`reverted fix in ${target}`);
 	} else {
-		if (original.includes(NEW)) {
+		if (original.includes(NEW) || original.includes(LEGACY_NEW)) {
 			console.log(`fix already applied: ${target}`);
 			continue;
 		}
