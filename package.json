@@ -1,0 +1,38 @@
+{
+  "name": "dsh-plugin-prompt-guard",
+  "version": "0.3.0",
+  "description": "Keeps pending permission/approval and multiselect prompts visible in dsh web — if one disappears without being answered it is restored in place or a bar offers one-tap restore; plus browser notifications when a prompt appears while the tab is in the background, and a host-side push (ntfy.sh) when the agent needs the user and no browser client is open. Settings card for the ntfy topic/token/cooldown.",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-settings-general"
+      ]
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davidgereb/dsh-plugin-prompt-guard.git"
+  },
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "plugin",
+    "notifications",
+    "pending-prompts",
+    "ntfy"
+  ],
+  "files": [
+    "lib"
+  ],
+  "license": "MIT"
+}
