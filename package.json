@@ -1,7 +1,7 @@
 {
   "name": "dsh-plugin-prompt-guard",
   "version": "0.3.0",
-  "description": "Keeps pending permission/approval and multiselect prompts visible in dsh web — if one disappears without being answered it is restored in place or a bar offers one-tap restore; plus browser notifications when a prompt appears while the tab is in the background, and a host-side push (ntfy.sh) when the agent needs the user and no browser client is open. Settings card for the ntfy topic/token/cooldown.",
+  "description": "Keeps pending permission/approval and multiselect prompts visible in dsh web \u2014 if one disappears without being answered it is restored in place or a bar offers one-tap restore; plus browser notifications when a prompt appears while the tab is in the background, and a host-side push (ntfy.sh) when the agent needs the user and no browser client is open. Settings card for the ntfy topic/token/cooldown.",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
@@ -32,7 +32,8 @@
     "ntfy"
   ],
   "files": [
-    "lib"
+    "lib",
+    "scripts"
   ],
   "license": "MIT"
 }
